@@ -22,6 +22,8 @@ namespace adifpush
             this.httpClient = new HttpClient();
         }
 
+        public string InstanceUrl => url.ToString();
+
         public async Task<PushLineResult[]> PushLines(string[] lines)
         {
             Uri uri = new Uri(url, "/index.php/api/qso");
@@ -32,7 +34,7 @@ namespace adifpush
             {
                 if (!AdifRecord.TryParse(line, out AdifRecord adifRecord, out string error))
                 {
-                    results.Add(new PushLineResult { ErrorContent = "Invalid ADIF: " + error });
+                    results.Add(new PushLineResult { ErrorContent = "Invalid ADIF: " + error});
                     continue;
                 }
 
@@ -46,7 +48,7 @@ namespace adifpush
                 HttpResponseMessage responseMessage = await httpClient.PostAsync(uri,
                     new JsonContent(new AdifLineModel { Key = apikey, String = newline }));
 
-                var result = new PushLineResult();
+                var result = new PushLineResult { Record = adifRecord };
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
@@ -66,5 +68,6 @@ namespace adifpush
     {
         public bool Success { get; set; }
         public string ErrorContent { get; set; }
+        public AdifRecord Record { get; set; }
     }
 }
