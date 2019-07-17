@@ -79,6 +79,8 @@ namespace adifpush
                             Console.WriteLine($"Error uploading: {result.ErrorContent}");
                         }
                     }
+
+                    latestRecord = records.OrderByDescending(r => r.QsoStart).First();
                 }
             }
             else
