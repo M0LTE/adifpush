@@ -11,6 +11,8 @@ namespace adifpush
     {
         static void Main(string[] args)
         {
+            bool showProgress = args.Any(a => a == "--show-progress");
+
             if (args.Any(a => a.EndsWith("configure", StringComparison.OrdinalIgnoreCase)))
             {
                 DoConfigureDialogue();
@@ -67,7 +69,7 @@ namespace adifpush
                     }
 
                     var lines = records.Select(r => r.ToString());
-                    PushLineResult[] results = linePusher.PushLines(lines.ToArray()).Result;
+                    PushLineResult[] results = linePusher.PushLines(lines.ToArray(), false).Result;
                     foreach (var result in results)
                     {
                         if (result.Success)
@@ -85,6 +87,7 @@ namespace adifpush
             }
             else
             {
+                // one-off upload
                 if (!args.Any(File.Exists))
                 {
                     Console.WriteLine("No existing ADIF file specified");
@@ -97,7 +100,7 @@ namespace adifpush
                         .Select(ar => ar.ToString())
                         .ToArray();
 
-                    PushLineResult[] results = linePusher.PushLines(lines).Result;
+                    PushLineResult[] results = linePusher.PushLines(lines, showProgress).Result;
 
                     Console.WriteLine($"{file}: {results.Count(r => r.Success)} successful, {results.Count(r => !r.Success)} failure(s)");
 

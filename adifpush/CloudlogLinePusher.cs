@@ -24,9 +24,14 @@ namespace adifpush
 
         public string InstanceUrl => url.ToString();
 
-        public async Task<PushLineResult[]> PushLines(string[] lines)
+        public async Task<PushLineResult[]> PushLines(string[] lines, bool showProgress)
         {
-            Uri uri = new Uri(url, "/index.php/api/qso");
+            Uri uri = new Uri(url, "index.php/api/qso");
+
+            if (showProgress)
+            {
+                Console.WriteLine($"POSTing to {uri}");
+            }
 
             var results = new List<PushLineResult>();
 
@@ -45,8 +50,32 @@ namespace adifpush
 
                 string newline = adifRecord.ToString();
 
-                HttpResponseMessage responseMessage = await httpClient.PostAsync(uri,
-                    new JsonContent(new AdifLineModel { Key = apikey, String = newline }));
+                if (showProgress)
+                {
+                    Console.Write($"{adifRecord.QsoStart.ToString("yyyy-MM-dd HH:mm:ss")} {adifRecord.Call ?? ""}... ");
+                }
+
+                HttpResponseMessage responseMessage;
+                try
+                {
+                    responseMessage = await httpClient.PostAsync(uri,
+                       new JsonContent(new AdifLineModel { Key = apikey, String = newline }));
+                }
+                catch (Exception ex)
+                {
+                    string message = $"{ex.GetType().Name}: {ex.Message}";
+                    if (showProgress)
+                    {
+                        Console.WriteLine(message);
+                    }
+                    results.Add(new PushLineResult { ErrorContent = message });
+                    continue;
+                }
+
+                if (showProgress)
+                {
+                    Console.WriteLine(responseMessage.StatusCode);
+                }
 
                 var result = new PushLineResult { Record = adifRecord };
 

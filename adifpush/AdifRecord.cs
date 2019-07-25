@@ -33,7 +33,18 @@ namespace adifpush
             }
         }
 
-        public string Call => Fields["call"];
+        public string Call
+        {
+            get
+            {
+                if (Fields.TryGetValue("call", out string call))
+                {
+                    return call;
+                }
+
+                return null;
+            }
+        }
 
         public override string ToString()
         {

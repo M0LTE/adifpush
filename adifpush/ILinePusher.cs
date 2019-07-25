@@ -4,7 +4,7 @@ namespace adifpush
 {
     interface ILinePusher
     {
-        Task<PushLineResult[]> PushLines(string[] adifLines);
+        Task<PushLineResult[]> PushLines(string[] adifLines, bool showProgress);
         string InstanceUrl { get; }
     }
 }
