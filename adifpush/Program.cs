@@ -1,4 +1,6 @@
 ﻿using M0LTE.AdifLib;
+using M0LTE.WsjtxUdpLib.Client;
+using M0LTE.WsjtxUdpLib.Messages.Out;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,47 +32,29 @@ namespace adifpush
 
             if (!args.Any())
             {
-                string targetFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WSJT-X", "wsjtx_log.adi");
-
-                string lastValidLine = null;
-                if (File.Exists(targetFile))
-                {
-                    lastValidLine = File.ReadAllLines(targetFile).Where(line => !string.IsNullOrWhiteSpace(line) && line.EndsWith("<eor>")).LastOrDefault();
-                }
-
-                AdifRecord latestRecord;
-
-                if (lastValidLine == null)
-                {
-                    Console.WriteLine("No contacts in WSJT-X log yet");
-                    latestRecord = new AdifRecord();
-                }
-                else
-                {
-                    if (!AdifRecord.TryParse(lastValidLine, out latestRecord, out string error))
-                    {
-                        Console.WriteLine($"Error parsing last adif record in WSJT-X logfile: {error}");
-                        return;
-                    }
-                }
-
-                var fsw = new FileSystemWatcher(Path.GetDirectoryName(targetFile), Path.GetFileName(targetFile));
+                using var client = new WsjtxClient(RecordReceived, debug: true);
 
                 Console.WriteLine($"Cloudlog instance: {linePusher.InstanceUrl}");
-                Console.WriteLine($"Watching {targetFile}, ctrl-c to quit...");
+                Console.WriteLine($"Listening for WSJT-X, ctrl-c to quit...");
 
-                while (true)
+                Thread.CurrentThread.Join();
+
+                void RecordReceived(WsjtxMessage message) 
                 {
-                    WaitForChangedResult changed = fsw.WaitForChanged(WatcherChangeTypes.Changed);
-                    IEnumerable<AdifRecord> records = GetRecords(targetFile).Where(r => r.QsoStart > latestRecord.QsoStart);
-
-                    if (!records.Any())
+                    if (!(message is LoggedAdifMessage loggedAdifMessage))
                     {
-                        continue;
+                        return;
                     }
 
-                    var lines = records.Select(r => r.ToString());
-                    PushLineResult[] results = linePusher.PushLines(lines.ToArray(), false, default).Result;
+                    if (!AdifFile.TryParse(loggedAdifMessage.AdifText, out AdifFile adifFile))
+                    {
+                        return;
+                    }
+
+                    string adifRecord = adifFile.Records.Single().ToString();
+
+                    PushLineResult[] results = linePusher.PushLines(new[] { adifRecord }, false, default).Result;
+
                     foreach (var result in results)
                     {
                         if (result.Success)
@@ -82,8 +66,6 @@ namespace adifpush
                             Console.WriteLine($"Error uploading: {result.ErrorContent}");
                         }
                     }
-
-                    latestRecord = records.OrderByDescending(r => r.QsoStart).First();
                 }
             }
             else
@@ -134,13 +116,8 @@ namespace adifpush
                 }
             }
 
-            return lines.Select(line => (AdifRecord.TryParse(line, out AdifRecord r, out _) ? r : null))
+            return lines.Select(line => (AdifContactRecord.TryParse(line, out AdifContactRecord r, out _) ? r : null))
                         .Where(ar => ar != null);
-        }
-
-        private static void Fsw_Changed(object sender, FileSystemEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         internal static string ConfigFile => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".adifpush", "cloudlog");

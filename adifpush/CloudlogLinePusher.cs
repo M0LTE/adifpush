@@ -17,10 +17,9 @@ namespace adifpush
         public CloudlogLinePusher()
         {
             string[] lines = File.ReadAllLines(Program.ConfigFile);
-            this.url = new Uri(lines.Single(l => l.StartsWith("url=", StringComparison.Ordinal)).Split('=')[1]);
-            this.apikey = lines.Single(l=>l.StartsWith("apikey=", StringComparison.Ordinal)).Split('=')[1];
-
-            this.httpClient = new HttpClient();
+            url = new Uri(lines.Single(l => l.StartsWith("url=", StringComparison.Ordinal)).Split('=')[1]);
+            apikey = lines.Single(l=>l.StartsWith("apikey=", StringComparison.Ordinal)).Split('=')[1];
+            httpClient = new HttpClient();
         }
 
         public string InstanceUrl => url.ToString();
@@ -38,27 +37,27 @@ namespace adifpush
 
             foreach (string line in lines)
             {
-                if (!AdifRecord.TryParse(line, out AdifRecord adifRecord, out string error))
+                if (!AdifContactRecord.TryParse(line, out AdifContactRecord contactRecord, out string error))
                 {
                     results.Add(new PushLineResult { ErrorContent = "Invalid ADIF: " + error});
                     continue;
                 }
 
-                if (adifRecord.QsoStart < notBefore)
+                if (contactRecord.QsoStart < notBefore)
                 {
                     continue;
                 }
 
-                if (adifRecord.Fields.ContainsKey("tx_pwr"))
+                if (contactRecord.Fields.ContainsKey("tx_pwr"))
                 {
-                    adifRecord.Fields["tx_pwr"] = adifRecord.Fields["tx_pwr"].Replace("W", "");
+                    contactRecord.Fields["tx_pwr"] = contactRecord.Fields["tx_pwr"].Replace("W", "");
                 }
 
-                string newline = adifRecord.ToString();
+                string newline = contactRecord.ToString();
 
                 if (showProgress)
                 {
-                    Console.Write($"{adifRecord.QsoStart.ToString("yyyy-MM-dd HH:mm:ss")} {adifRecord.Call ?? ""}... ");
+                    Console.Write($"{contactRecord.QsoStart.ToString("yyyy-MM-dd HH:mm:ss")} {contactRecord.Call ?? ""}... ");
                 }
 
                 HttpResponseMessage responseMessage;
@@ -83,7 +82,7 @@ namespace adifpush
                     Console.WriteLine(responseMessage.StatusCode);
                 }
 
-                var result = new PushLineResult { Record = adifRecord };
+                var result = new PushLineResult { Record = contactRecord };
 
                 if (!responseMessage.IsSuccessStatusCode)
                 {
@@ -103,6 +102,6 @@ namespace adifpush
     {
         public bool Success { get; set; }
         public string ErrorContent { get; set; }
-        public AdifRecord Record { get; set; }
+        public AdifContactRecord Record { get; set; }
     }
 }
