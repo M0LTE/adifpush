@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace adifpush
 {
     interface ILinePusher
     {
-        Task<PushLineResult[]> PushLines(string[] adifLines, bool showProgress);
+        Task<PushLineResult[]> PushLines(string[] adifLines, bool showProgress, DateTime notBefore);
         string InstanceUrl { get; }
     }
 }

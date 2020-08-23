@@ -69,7 +69,7 @@ namespace adifpush
                     }
 
                     var lines = records.Select(r => r.ToString());
-                    PushLineResult[] results = linePusher.PushLines(lines.ToArray(), false).Result;
+                    PushLineResult[] results = linePusher.PushLines(lines.ToArray(), false, default).Result;
                     foreach (var result in results)
                     {
                         if (result.Success)
@@ -100,7 +100,7 @@ namespace adifpush
                         .Select(ar => ar.ToString())
                         .ToArray();
 
-                    PushLineResult[] results = linePusher.PushLines(lines, showProgress).Result;
+                    PushLineResult[] results = linePusher.PushLines(lines, showProgress, default).Result;
 
                     Console.WriteLine($"{file}: {results.Count(r => r.Success)} successful, {results.Count(r => !r.Success)} failure(s)");
 

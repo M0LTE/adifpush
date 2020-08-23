@@ -24,7 +24,7 @@ namespace adifpush
 
         public string InstanceUrl => url.ToString();
 
-        public async Task<PushLineResult[]> PushLines(string[] lines, bool showProgress)
+        public async Task<PushLineResult[]> PushLines(string[] lines, bool showProgress, DateTime notBefore)
         {
             Uri uri = new Uri(url, "index.php/api/qso");
 
@@ -40,6 +40,11 @@ namespace adifpush
                 if (!AdifRecord.TryParse(line, out AdifRecord adifRecord, out string error))
                 {
                     results.Add(new PushLineResult { ErrorContent = "Invalid ADIF: " + error});
+                    continue;
+                }
+
+                if (adifRecord.QsoStart < notBefore)
+                {
                     continue;
                 }
 
