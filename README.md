@@ -6,8 +6,8 @@ Watches wsjtx_log.adi for changes and auto-uploads new contacts live, including 
 (Still need to have "Prompt me to log QSO" turned on in WSJT-X)
 
 # Prerequisites
-- .NET Core 2.1 SDK and/or runtime, not sure ([download page](https://dotnet.microsoft.com/download/dotnet-core/2.1))
-- Any OS that .NET Core 2.1 runs on. Built on OS X, should work fine on Windows and Linux too.
+- .NET Core 3.0 SDK ([download page](https://dotnet.microsoft.com/download))
+- Any OS that .NET runs on. Built on OS X, should work fine on Windows and Linux too.
 - Recent Cloudlog install + API key for it (from the Admin menu)
 
 # Usage
