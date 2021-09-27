@@ -1,5 +1,6 @@
 ﻿using M0LTE.AdifLib;
 using M0LTE.WsjtxUdpLib.Client;
+using M0LTE.WsjtxUdpLib.Messages;
 using M0LTE.WsjtxUdpLib.Messages.Out;
 using System;
 using System.Collections.Generic;
@@ -40,7 +41,7 @@ namespace adifpush
 
                 Thread.CurrentThread.Join();
 
-                void RecordReceived(WsjtxMessage message) 
+                void RecordReceived(WsjtxMessage message, IPEndPoint _) 
                 {
                     if (!(message is LoggedAdifMessage loggedAdifMessage))
                     {
