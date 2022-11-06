@@ -13,11 +13,11 @@ Listens for the UDP interface of WSJT-X and JTDX and auto-uploads new contacts l
 # Usage
 ## One-off setup
 ```
-git clone https://github.com/M0LTE/adifpush.git
+git clone https://github.com/huberse/adifpush.git
 cd adifpush/adifpush
 dotnet run --configure
 ```
-and follow the steps. Supply your cloudlog base URL, and a read/write API key.
+and follow the steps. Supply your cloudlog base URL, Station ID (This can be found when editing a station profile in CloudLog - its a number and displayed in the URL) and a read/write API key.
 
 ## Day-to-day
 For auto-upload of WSJT-X's logfile, simply start with no command line parameters:
