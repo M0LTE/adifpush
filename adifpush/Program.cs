@@ -37,7 +37,7 @@ namespace adifpush
                 using var client = new WsjtxClient(RecordReceived, IPAddress.Parse("239.255.0.1"), multicast: true, debug: true);
 
                 Console.WriteLine($"Cloudlog instance: {linePusher.InstanceUrl}");
-                Console.WriteLine($"Station ID: ");
+                Console.WriteLine($"Station ID: {linePusher.InstanceID}");
                 Console.WriteLine($"Listening for WSJT-X, ctrl-c to quit...");
 
                 Thread.CurrentThread.Join();

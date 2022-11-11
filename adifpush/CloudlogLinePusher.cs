@@ -25,6 +25,7 @@ namespace adifpush
         }
 
         public string InstanceUrl => url.ToString();
+        public string InstanceID => station_profile_id.ToString();
 
         public async Task<PushLineResult[]> PushLines(string[] lines, bool showProgress, DateTime notBefore)
         {

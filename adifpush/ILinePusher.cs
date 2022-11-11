@@ -7,5 +7,6 @@ namespace adifpush
     {
         Task<PushLineResult[]> PushLines(string[] adifLines, bool showProgress, DateTime notBefore);
         string InstanceUrl { get; }
+        string InstanceID { get; }
     }
 }
