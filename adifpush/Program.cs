@@ -37,6 +37,7 @@ namespace adifpush
                 using var client = new WsjtxClient(RecordReceived, IPAddress.Parse("239.255.0.1"), multicast: true, debug: true);
 
                 Console.WriteLine($"Cloudlog instance: {linePusher.InstanceUrl}");
+                Console.WriteLine($"Station ID: {linePusher.InstanceID}");
                 Console.WriteLine($"Listening for WSJT-X, ctrl-c to quit...");
 
                 Thread.CurrentThread.Join();
@@ -130,12 +131,16 @@ namespace adifpush
             string url = Console.ReadLine();
             Console.Write("API key? ");
             string apikey = Console.ReadLine();
+            Console.Write("Station ID? ");
+            string stationid = Console.ReadLine();
 
             var content = new StringBuilder();
             content.Append("url=");
             content.AppendLine(url);
             content.Append("apikey=");
             content.AppendLine(apikey);
+            content.Append("stationid=");
+            content.AppendLine(stationid);
 
             string targetDir = Path.GetDirectoryName(ConfigFile);
             if (!Directory.Exists(targetDir))

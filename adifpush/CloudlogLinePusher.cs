@@ -12,6 +12,7 @@ namespace adifpush
     {
         readonly Uri url;
         readonly string apikey;
+        readonly string station_profile_id;
         readonly HttpClient httpClient;
 
         public CloudlogLinePusher()
@@ -19,10 +20,12 @@ namespace adifpush
             string[] lines = File.ReadAllLines(Program.ConfigFile);
             url = new Uri(lines.Single(l => l.StartsWith("url=", StringComparison.Ordinal)).Split('=')[1]);
             apikey = lines.Single(l=>l.StartsWith("apikey=", StringComparison.Ordinal)).Split('=')[1];
+            station_profile_id = lines.Single(l => l.StartsWith("stationid=", StringComparison.Ordinal)).Split('=')[1];
             httpClient = new HttpClient();
         }
 
         public string InstanceUrl => url.ToString();
+        public string InstanceID => station_profile_id.ToString();
 
         public async Task<PushLineResult[]> PushLines(string[] lines, bool showProgress, DateTime notBefore)
         {
@@ -64,7 +67,7 @@ namespace adifpush
                 try
                 {
                     responseMessage = await httpClient.PostAsync(uri,
-                       new JsonContent(new AdifLineModel { Key = apikey, String = newline }));
+                       new JsonContent(new AdifLineModel { Key = apikey, Station = station_profile_id, String = newline }));
                 }
                 catch (Exception ex)
                 {
